@@ -3,18 +3,23 @@ import addCustomerHeader from "../../assets/addCustomer.svg";
 import axios from "../../utils/axios";
 import { serialize } from "object-to-formdata";
 import { useNavigate } from "react-router";
+import { Loader } from "../../Components/Loader";
 const CreateCustomer = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
+  const [pending, setPending] = useState(false);
+
   const fillState = (key, value) => {
     setFormData({ ...formData, [key]: value });
   };
   const addNewCustomer = async () => {
+    setPending(true);
     const { status } = await axios.post(
       "/customer/create",
       serialize(formData)
     );
     if (status === 201) {
+      setPending(false);
       navigate("/");
     }
   };
@@ -88,6 +93,15 @@ const CreateCustomer = () => {
             Upload Photo
           </p>
         </label>
+        <img
+          height={100}
+          src={
+            formData?.profilePicture
+              ? URL.createObjectURL(formData.profilePicture)
+              : null
+          }
+          alt=""
+        />
         <button
           type="submit"
           className="add-customer-button"
@@ -95,6 +109,7 @@ const CreateCustomer = () => {
         >
           Add Customer
         </button>
+        {pending && <Loader />}
       </div>
     </form>
   );

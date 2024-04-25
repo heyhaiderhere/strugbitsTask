@@ -5,16 +5,21 @@ import { serialize } from "object-to-formdata";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../constants/constants";
+import { Loader } from "../../Components/Loader";
 const CreateCustomer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
+  const [pending, setPending] = useState(false);
+
   const fillState = (key, value) => {
     setFormData({ ...formData, [key]: value });
   };
   const updatedCustomer = async () => {
+    setPending(true);
     const { status } = await axios.put(`/customer/${id}`, serialize(formData));
     if (status === 200) {
+      setPending(false);
       navigate("/");
     }
   };
@@ -107,7 +112,11 @@ const CreateCustomer = () => {
         </label>
         <img
           height={100}
-          src={`${BASE_URL}/${formData.profilePicture}`}
+          src={
+            formData?.profilePicture instanceof File
+              ? URL.createObjectURL(formData.profilePicture)
+              : `${BASE_URL}/${formData.profilePicture}`
+          }
           alt=""
         />
         <button
@@ -117,6 +126,7 @@ const CreateCustomer = () => {
         >
           Edit Customer
         </button>
+        {pending && <Loader />}
       </div>
     </form>
   );

@@ -1,6 +1,5 @@
 import Customer from "../models/customerModel.js";
 import asyncHandler from "express-async-handler";
-import mongoose from "mongoose";
 
 // @desc	create customer
 // @route	POST /api/customer/create
@@ -18,6 +17,9 @@ const createCustomer = asyncHandler(async (req, res) => {
   if (customer) {
     res.status(201);
     res.json(customer);
+  } else {
+    res.status(500);
+    throw new Error("Internal server error");
   }
 });
 // @desc	get all customers
@@ -28,6 +30,8 @@ const getAllCustomers = asyncHandler(async (req, res) => {
   const customers = await Customer.find({}).sort({ [key]: Number(type) });
   if (customers) {
     res.status(200).json(customers);
+  } else {
+    throw new Error("No record found");
   }
 });
 // @desc	get One customers
@@ -38,6 +42,8 @@ const getSingleCustomer = asyncHandler(async (req, res) => {
   const customers = await Customer.findById(id);
   if (customers) {
     res.status(200).json(customers);
+  } else {
+    throw new Error("Customer not found");
   }
 });
 // @desc	Delete a customer
@@ -47,9 +53,9 @@ const deleteCustomer = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const deletedCustomer = await Customer.findByIdAndDelete(id);
   if (deletedCustomer) {
-    res.send("The customer is deleted");
+    res.send("The customer is deleted").status(202);
   } else {
-    res.send("The customer could not be found");
+    throw new Error("Customer not found");
   }
 });
 
@@ -74,9 +80,9 @@ const updateCustomer = asyncHandler(async (req, res) => {
     }
   );
   if (updatedCustomer) {
-    res.send("The customer is Updated");
+    res.send("The customer is Updated").status(200);
   } else {
-    res.send("The customer could not be found");
+    throw new Error("Customer not found");
   }
 });
 
